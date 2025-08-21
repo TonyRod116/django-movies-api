@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Movie
-from .serializer import MovieSerializer
+from .serializers.common import MovieSerializer
 
 # Create your views here.
 # Patch: /countries/
