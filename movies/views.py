@@ -2,6 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Movie
 from .serializers.common import MovieSerializer
+from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import ValidationError
+
 
 # Create your views here.
 # Patch: /countries/
@@ -17,4 +20,74 @@ class MovieView(APIView):
     # Create route
     # Method: POST
     def post(self, request):
+        serialized_movies = MovieSerializer(data=request.data)
+
+        # is_valid does the following: 
+        # 1. takes the request.data and tries to vlaidate it based on the model
+        # 2. if it fails it returns false, also adds an error key onto the serialized_movies object
+        # 3. if it succeeds it returns true, also adds the data key onto the serialized_movies object
+        # 4. if we set the raise_exception to true, it will raise Rest Framework's own ValidationError exception
+        # ? Remember, all Rest Framework exceptions are  automatically handled by APIView, sending the relevant response
+
+        serialized_movies.is_valid(raise_exception=True)
+
+        # if validations succeeds, we can save the data
+        serialized_movies.save()
+
+        # if validations fails, we can access the errors
+        # print(serialized_movies.errors)
+
+        return Response(serialized_movies.validated_data, status=201)
+ 
+        # if serialized_movies.is_valid():
+        #     print(serialized_movies.data)
+        # else:
+        #     print("Data is not valid")
+        #     print(serialized_movies.errors)
+
+      
+
+
         return Response("HIT CREATE ROUTE")
+
+
+# Path: /countries/<int:pk>
+class MovieDetailView(APIView):
+
+  #helper function that attempts to get the specified object, but sends a 404 if not found
+  # 1. get_movie will take the PK from the URL params as an argument
+  # 2. it will attempt to get the object from the database
+  # 3. if it succeeds, it will return the object
+  # 4. if it fails, it will raise a DoesNotExist exception then he will send a 404 by raising NotFound
+  def get_movie(self,pk):
+    try:
+      return Movie.objects.get(pk=pk)
+    except Movie.DoesNotExist as e:
+      raise NotFound("Movie does not exist")
+
+
+  # Show route
+  # Method: GET
+  def get(self, request, pk):
+    movie = Movie.objects.get(pk=pk) # Country.findOne({ _id: req.params.countryId})
+    serialized_movie = MovieSerializer(movie)
+    return Response(serialized_movie.data)
+
+
+  # Update route
+  # Method: PUT
+  def put(self, request, pk):
+    try:
+      movie = Movie.objects.get(pk=pk)
+      serialized_movie = MovieSerializer(movie, data=request.data, partial=True)
+      serialized_movie.is_valid(raise_exception=True)
+      serialized_movie.save()
+      return Response(serialized_movie.validated_data)
+
+
+  # Delete route
+  # Method: DELETE
+  def delete(self, request, pk):
+    movie = Movie.objects.get(pk=pk)
+    movie.delete()
+    return Response(status=204)
