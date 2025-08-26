@@ -39,16 +39,7 @@ class MovieView(APIView):
 
         return Response(serialized_movies.validated_data, status=201)
  
-        # if serialized_movies.is_valid():
-        #     print(serialized_movies.data)
-        # else:
-        #     print("Data is not valid")
-        #     print(serialized_movies.errors)
 
-      
-
-
-        return Response("HIT CREATE ROUTE")
 
 
 # Path: /countries/<int:pk>
@@ -83,6 +74,8 @@ class MovieDetailView(APIView):
       serialized_movie.is_valid(raise_exception=True)
       serialized_movie.save()
       return Response(serialized_movie.validated_data)
+    except Movie.DoesNotExist:
+      raise NotFound("Movie does not exist")
 
 
   # Delete route

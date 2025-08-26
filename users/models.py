@@ -3,4 +3,5 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class User(AbstractUser):
-    pass
+    email = models.EmailField(max_length=254)
+    bio = models.TextField(max_length=300, default="")
