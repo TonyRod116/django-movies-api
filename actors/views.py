@@ -17,4 +17,6 @@ class ActorDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PopulatedActorSerializer
         return ActorSerializer
