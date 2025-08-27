@@ -11,6 +11,10 @@ class Movie(models.Model):
         on_delete=models.CASCADE, # on_delete we can cset CASCADE to delete this object when the relation is deleted. SET_NULL if it's a non-required field
         related_name='owned_movies',
     )
-    
+    actors = models.ManyToManyField(
+        to='actors.Actor',
+        related_name='actors_movies',
+        blank=True,
+    )
     def __str__(self):
         return f'{self.title} ({self.year})'

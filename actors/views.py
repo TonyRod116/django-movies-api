@@ -12,7 +12,9 @@ class ActorListCreateView(ListCreateAPIView):
     serializer_class = ActorSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-class LanguageDetailView(RetrieveUpdateDestroyAPIView):
+class ActorDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Actor.objects.all()
-    serializer_class = ActorSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        return ActorSerializer

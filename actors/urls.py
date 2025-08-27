@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import ActorListCreateView, LanguageDetailView
+from .views import ActorListCreateView, ActorDetailView
 
 urlpatterns = [
     path('', ActorListCreateView.as_view(), name='actor-list-create'),
-    path('<int:pk>/', LanguageDetailView.as_view(), name='language-detail'),
+    path('<int:pk>/', ActorDetailView.as_view(), name='actor-detail'),
 ]
