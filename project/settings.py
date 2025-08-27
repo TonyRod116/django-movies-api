@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'movies',
     'rest_framework_simplejwt',
+    'actors',
 ]
 
 REST_FRAMEWORK = {

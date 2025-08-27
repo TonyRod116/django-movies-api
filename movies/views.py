@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Movie
 from .serializers.common import MovieSerializer
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -72,19 +72,27 @@ class MovieDetailView(APIView):
     # Update route
     # Method: PUT
     def put(self, request, pk):
-        try:
-            movie = Movie.objects.get(pk=pk)
-            serialized_movie = MovieSerializer(data=request.data)
-            serialized_movie.is_valid(raise_exception=True)
-            serialized_movie.save(owner=request.user)
-            return Response(serialized_movie.data)
-        except Movie.DoesNotExist:
-            raise NotFound("Movie does not exist")
+        movie = self.get_movie(pk)
+
+        # after retrieving country from database, deny acces if the logged in user s not the owner
+        if movie.owner != request.user:
+            raise PermissionDenied("Unauthorized: You do not have permission to access this resource") #raising a PermissionDenied exception will automatically send a 403 Forbidden response
+
+        # if the user is the owner, continue
+        serialized_movie = MovieSerializer(movie, data=request.data)
+        serialized_movie.is_valid(raise_exception=True)
+        serialized_movie.save(owner=request.user)
+        return Response(serialized_movie.data)  
+
 
 
     # Delete route
     # Method: DELETE
     def delete(self, request, pk):
-        movie = Movie.objects.get(pk=pk)
+        movie = self.get_movie(pk)
+        
+        if movie.owner != request.user:
+            raise PermissionDenied("Unauthorized: You do not have permission to access this resource")
+
         movie.delete()
         return Response(status=204)
